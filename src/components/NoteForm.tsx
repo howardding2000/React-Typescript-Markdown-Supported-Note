@@ -5,7 +5,7 @@ import CreatableReactSelect from "react-select/creatable";
 import { NoteData, Tag } from "../App";
 
 type NoteFormProps = {
-  onSubmit: (date: NoteData) => void;
+  onSubmit: (data: NoteData) => void;
 };
 
 const NoteForm: React.FC<NoteFormProps> = ({ onSubmit }) => {
