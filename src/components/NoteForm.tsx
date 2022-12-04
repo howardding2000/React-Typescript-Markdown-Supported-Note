@@ -9,16 +9,19 @@ type NoteFormProps = {
   onSubmit: (data: NoteData) => void;
   onAddTag: (tag: Tag) => void;
   availableTags: Tag[];
-};
+} & Partial<NoteData>;
 
 const NoteForm: React.FC<NoteFormProps> = ({
   onSubmit,
   onAddTag,
   availableTags,
+  title = "",
+  markdown = "",
+  tags = [],
 }) => {
   const titleRef = useRef<HTMLInputElement>(null);
   const markdownRef = useRef<HTMLTextAreaElement>(null);
-  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+  const [selectedTags, setSelectedTags] = useState<Tag[]>(tags);
   const navigate = useNavigate();
 
   const handleSubmit = (e: FormEvent) => {
@@ -28,7 +31,7 @@ const NoteForm: React.FC<NoteFormProps> = ({
       markdown: markdownRef.current!.value,
       tags: selectedTags,
     });
-    navigate('..')
+    navigate("..");
   };
 
   return (
@@ -38,7 +41,12 @@ const NoteForm: React.FC<NoteFormProps> = ({
           <Col>
             <Form.Group controlId='title'>
               <Form.Label>Title</Form.Label>
-              <Form.Control ref={titleRef} required className='shadow-none' />
+              <Form.Control
+                ref={titleRef}
+                required
+                defaultValue={title}
+                className='shadow-none'
+              />
             </Form.Group>
           </Col>
           <Col>
@@ -77,6 +85,7 @@ const NoteForm: React.FC<NoteFormProps> = ({
         <Form.Group controlId='markdown'>
           <Form.Label>Body</Form.Label>
           <Form.Control
+            defaultValue={markdown}
             ref={markdownRef}
             required
             as='textarea'

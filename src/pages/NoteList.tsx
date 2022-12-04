@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Button, Col, Form, Row, Stack } from "react-bootstrap";
+import { Button, Col, Form, Modal, Row, Stack } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import ReactSelect from "react-select";
 import { Note, Tag } from "../App";
@@ -8,10 +8,27 @@ import NoteCard from "../components/NoteCard";
 type NoteListProps = {
   availableTags: Tag[];
   notes: Note[];
+  onUpdateTag: (id: string, label: string) => void;
+  onDeleteTag: (id: string) => void;
 };
-const NoteList: React.FC<NoteListProps> = ({ availableTags, notes }) => {
+
+type EditTagsProps = {
+  availableTags: Tag[];
+  show: boolean;
+  onHide: () => void;
+  onUpdateTag: (id: string, label: string) => void;
+  onDeleteTag: (id: string) => void;
+};
+
+const NoteList = ({
+  availableTags,
+  notes,
+  onUpdateTag,
+  onDeleteTag,
+}: NoteListProps) => {
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
   const [title, setTitle] = useState<string>("");
+  const [editTagsModalIsOpen, setEditTagsModalIsOpen] = useState(false);
 
   const filteredNotes = useMemo(() => {
     return notes.filter((note) => {
@@ -24,8 +41,8 @@ const NoteList: React.FC<NoteListProps> = ({ availableTags, notes }) => {
           ))
       );
     });
-  }, [title, selectedTags]);
-  
+  }, [title, selectedTags, notes]);
+
   return (
     <>
       <Row className='align-items-center mb-4'>
@@ -37,7 +54,12 @@ const NoteList: React.FC<NoteListProps> = ({ availableTags, notes }) => {
             <Link to='/new'>
               <Button variant='primary'>Create</Button>
             </Link>
-            <Button variant='outline-secondary'>Edit Tags</Button>
+            <Button
+              onClick={() => setEditTagsModalIsOpen(true)}
+              variant='outline-secondary'
+            >
+              Edit Tags
+            </Button>
           </Stack>
         </Col>
       </Row>
@@ -89,8 +111,53 @@ const NoteList: React.FC<NoteListProps> = ({ availableTags, notes }) => {
           </Col>
         ))}
       </Row>
+      <EditTagsModal
+        availableTags={availableTags}
+        show={editTagsModalIsOpen}
+        onHide={() => setEditTagsModalIsOpen(false)}
+        onUpdateTag={onUpdateTag}
+        onDeleteTag={onDeleteTag}
+      />
     </>
   );
 };
 
+const EditTagsModal = ({
+  availableTags,
+  show,
+  onHide,
+  onUpdateTag,
+  onDeleteTag,
+}: EditTagsProps) => {
+  return (
+    <Modal show={show} onHide={onHide}>
+      <Modal.Header closeButton>Edit Tags</Modal.Header>
+      <Modal.Body>
+        <Form>
+          <Stack gap={2}>
+            {availableTags.map((tag) => (
+              <Row key={tag.id}>
+                <Col>
+                  <Form.Control
+                    type='text'
+                    value={tag.label}
+                    onChange={(e) => onUpdateTag(tag.id, e.target.value)}
+                  />
+                </Col>
+                <Col xs='auto'>
+                  <Button
+                    variant='outline-danger'
+                    onClick={() => onDeleteTag(tag.id)}
+                  >
+                    &times;
+                  </Button>
+                </Col>
+              </Row>
+            ))}
+          </Stack>
+        </Form>
+      </Modal.Body>
+    </Modal>
+  );
+};
 export default NoteList;
